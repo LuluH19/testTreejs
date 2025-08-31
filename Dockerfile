@@ -10,6 +10,8 @@ WORKDIR /app
 COPY --from=builder /root/.local /root/.local
 ENV PATH="/root/.local/bin:$PATH"
 COPY . .
+# Sécurité : forcer l'installation de gunicorn dans l'image finale
+RUN pip install --upgrade pip && pip install gunicorn
 
 # Variables d'environnement (à surcharger)
 ENV FLASK_APP=app \
@@ -18,4 +20,4 @@ ENV FLASK_APP=app \
 
 EXPOSE 5000
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:create_app()"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--timeout", "120", "--workers", "1", "--worker-class", "sync", "app:create_app()"]

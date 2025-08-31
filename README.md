@@ -9,9 +9,34 @@ Ce projet est une API REST pédagogique simulant des services d’usine logiciel
 ## 🗂️ Structure du projet
 
 ```
-app/
-	__init__.py         # Factory Flask, enregistrement blueprints, config, erreurs
-	config.py           # Configuration centralisée (env, DB, JWT)
+ap## Plan d'itérations ✅
+
+1. ✅ Initialisation 
+2. ✅ /status + config + DB
+3. ✅ Auth JWT + seed admin + handlers d'erreurs
+4. ✅ Projets (CRUD)
+5. ✅ Builds (simulation)
+6. ✅ Swagger
+7. ✅ Tests Pytest
+8. ✅ Dockerfile
+9. ✅ GitHub Actions CI
+10. ✅ PostgreSQL + docker-compose
+
+**🎉 Projet terminé avec succès !**_.py         # Factory Flask, enregistrement blueprints, config, erreurs
+	config.py           # Swagger UI est disponible sur :
+
+http://localhost:5000/apidocs
+
+Vous pouvez tester tous les endpoints directement depuis l'interface !
+
+## CI/CD
+
+Le projet inclut une configuration GitHub Actions dans `.github/workflows/ci.yml` qui :
+- Installe Python et les dépendances
+- Lance les tests avec pytest
+- (Optionnel) Build de l'image Docker
+
+![CI](https://github.com/LuluH19/testTreejs/actions/workflows/ci.yml/badge.svg)guration centralisée (env, DB, JWT)
 	db.py               # Instance SQLAlchemy
 	models.py           # Modèles ORM (User, Project, Build)
 	schemas.py          # Schémas de validation (TypedDict)
@@ -237,8 +262,6 @@ curl http://localhost:5000/status
 
 ---
 
-**Formateur & architecte : GitHub Copilot**  
-Projet prêt pour la prod, la démo, ou l’évolution !
 ## PostgreSQL & docker-compose (optionnel)
 
 Pour utiliser PostgreSQL en local avec docker-compose :
@@ -273,21 +296,48 @@ API REST pédagogique simulant des services d’usine logicielle (CI/CD) avec Fl
 - Tests Pytest
 - Docker & CI GitHub Actions
 
-## Installation rapide
+## 🚀 Démarrage rapide
+
+### Prérequis
+- Python 3.12+
+- Docker (optionnel pour PostgreSQL)
+
+### Installation locale (SQLite)
 
 ```bash
+# Cloner et entrer dans le projet
+git clone <votre-repo>
+cd testTreejs
+
+# Créer l'environnement virtuel
 python -m venv venv
-source venv/bin/activate  # ou .\venv\Scripts\activate sous Windows
+.\venv\Scripts\activate  # Windows
+# ou
+source venv/bin/activate  # Linux/Mac
+
+# Installer les dépendances
 pip install -r requirements.txt
+
+# Configuration
 cp .env.example .env
-```
 
-## Lancement
-
-```bash
-export FLASK_APP=app
+# Lancer l'API
 flask run
 ```
+
+L'API sera accessible sur http://localhost:5000
+
+### Identifiants par défaut
+- **Username:** `admin`
+- **Password:** `admin123`
+
+### Endpoints principaux
+- `GET /status` - Health check
+- `POST /login` - Authentification
+- `GET /apidocs` - Documentation Swagger
+- `GET /projects` - Liste des projets
+- `POST /projects` - Créer un projet (JWT requis)
+- `POST /projects/{id}/builds` - Déclencher un build (JWT requis)
 
 ## Plan d’itérations
 
@@ -308,6 +358,10 @@ flask run
 ### 1. Authentification (login)
 
 ```bash
+# PowerShell
+Invoke-RestMethod -Uri "http://localhost:5000/login" -Method POST -ContentType "application/json" -Body '{"username":"admin","password":"admin123"}'
+
+# Bash/curl  
 curl -X POST http://localhost:5000/login -H "Content-Type: application/json" -d '{"username":"admin","password":"admin123"}'
 ```
 Réponse :
@@ -321,12 +375,20 @@ Réponse :
 ### 2. Lister les projets (JWT requis)
 
 ```bash
+# PowerShell
+Invoke-RestMethod -Uri "http://localhost:5000/projects" -Headers @{"Authorization"="Bearer <token>"}
+
+# Bash/curl
 curl -H "Authorization: Bearer <token>" http://localhost:5000/projects
 ```
 
 ### 3. Créer un projet
 
 ```bash
+# PowerShell
+Invoke-RestMethod -Uri "http://localhost:5000/projects" -Method POST -Headers @{"Authorization"="Bearer <token>"} -ContentType "application/json" -Body '{"name":"DemoProj","repo":"https://github.com/demo/repo"}'
+
+# Bash/curl
 curl -X POST http://localhost:5000/projects \
 	-H "Authorization: Bearer <token>" \
 	-H "Content-Type: application/json" \
@@ -337,18 +399,28 @@ curl -X POST http://localhost:5000/projects \
 ### 4. Simuler un build
 
 ```bash
-curl -X POST http://localhost:5000/projects/1/build -H "Authorization: Bearer <token>"
+# PowerShell
+Invoke-RestMethod -Uri "http://localhost:5000/projects/1/builds" -Method POST -Headers @{"Authorization"="Bearer <token>"}
+
+# Bash/curl
+curl -X POST http://localhost:5000/projects/1/builds -H "Authorization: Bearer <token>"
 ```
 
 ### 5. Lister les builds d'un projet
 
 ```bash
+# PowerShell  
+Invoke-RestMethod -Uri "http://localhost:5000/projects/1/builds" -Headers @{"Authorization"="Bearer <token>"}
+
+# Bash/curl
 curl -H "Authorization: Bearer <token>" http://localhost:5000/projects/1/builds
 ```
 
 
 
-## Docker
+## Docker & PostgreSQL
+
+### Docker seul
 
 Build de l'image :
 
@@ -362,7 +434,31 @@ Lancement :
 docker run -p 5000:5000 --env-file .env mini-usine-api
 ```
 
-L'API sera accessible sur http://localhost:5000
+### Docker Compose (avec PostgreSQL)
+
+Lancement complet (API + PostgreSQL) :
+
+```bash
+docker compose up --build
+```
+
+L'API sera accessible sur http://localhost:5000 et PostgreSQL sur localhost:5432.
+
+Pour arrêter :
+
+```bash
+docker compose down
+```
+
+### Configuration PostgreSQL
+
+Modifiez `.env` pour PostgreSQL :
+
+```
+DB_URL=postgresql://postgres:postgres@db:5432/postgres
+JWT_SECRET=change-me
+ENV=production
+```
 
 
 Swagger UI est disponible sur :
@@ -371,9 +467,33 @@ http://localhost:5000/apidocs
 
 Vous pouvez tester tous les endpoints directement depuis l’interface !
 
+## Tests
+
+Lancement des tests :
+
+```bash
+# Activer l'environnement virtuel
+.\venv\Scripts\activate  # Windows
+# ou
+source venv/bin/activate  # Linux/Mac
+
+# Lancer les tests
+pytest
+```
+
+Les tests couvrent :
+- Authentification JWT
+- CRUD des projets
+- Simulation des builds
+- Endpoint de status
+
 ### 6. Status API
 
 ```bash
+# PowerShell
+Invoke-RestMethod -Uri "http://localhost:5000/status"
+
+# Bash/curl
 curl http://localhost:5000/status
 ```
 Réponse attendue :
@@ -394,12 +514,12 @@ Réponse attendue :
 - [x] Auth JWT
 - [x] Projets
 - [x] Builds
-- [ ] Swagger
-- [ ] Tests
+- [x] Swagger
+- [x] Tests
 - [x] Docker
-- [ ] CI GitHub Actions
-- [ ] PostgreSQL/docker-compose
+- [x] CI GitHub Actions
+- [x] PostgreSQL/docker-compose
 
 ---
 
-**Formateur :** GitHub Copilot  
+
