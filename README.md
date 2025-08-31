@@ -522,4 +522,3 @@ Réponse attendue :
 
 ---
 
-
