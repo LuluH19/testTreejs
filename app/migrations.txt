@@ -1,0 +1,1 @@
+# Placeholder pour migrations futures (non utilisé avec SQLite simple)
